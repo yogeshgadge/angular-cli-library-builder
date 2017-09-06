@@ -1,1 +1,1 @@
-export * from 'component-one/component.classes';
+export * from './component-one/component.classes';

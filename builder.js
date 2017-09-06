@@ -12,10 +12,12 @@ const uglify = require('rollup-plugin-uglify');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
+const del = require('del');
 
 const inlineResources = require('./inline-resources');
 
 const libDir = path.join(__dirname, 'example');
+
 
 
 const rootFolder = path.join(libDir);
@@ -26,6 +28,9 @@ const distFolder = path.join(rootFolder, 'dist');
 const tempLibFolder = path.join(compilationFolder, 'lib');
 const es5OutputFolder = path.join(compilationFolder, 'lib-es5');
 const es2015OutputFolder = path.join(compilationFolder, 'lib-es2015');
+
+del.sync(distFolder);
+del.sync(compilationFolder);
 
 return Promise.resolve()
 // Copy library to temporary folder and inline html/css.
@@ -55,8 +60,8 @@ return Promise.resolve()
         const es5Entry = path.join(es5OutputFolder, `${libName}.js`);
         const es2015Entry = path.join(es2015OutputFolder, `${libName}.js`);
         const rollupBaseConfig = {
-            moduleName: libName,
-            sourcemap: true,
+            name: camelCase(libName),
+            output: {sourcemap: true},
             // ATTENTION:
             // Add any dependency or peer dependency your library to `globals` and `external`.
             // This is required for UMD bundle users.
@@ -83,30 +88,42 @@ return Promise.resolve()
         // UMD bundle.
         const umdConfig = Object.assign({}, rollupBaseConfig, {
             input: es5Entry,
-            output: path.join(distFolder, `bundles`, `${libName}.umd.js`),
-            format: 'umd',
+            output: {
+                file: path.join(distFolder, `bundles`, `${libName}.umd.js`),
+                name: `${libName}`,
+                format: 'umd'
+            },
         });
 
         // Minified UMD bundle.
         const minifiedUmdConfig = Object.assign({}, rollupBaseConfig, {
             input: es5Entry,
-            output: path.join(distFolder, `bundles`, `${libName}.umd.min.js`),
-            format: 'umd',
+            output: {
+                file: path.join(distFolder, `bundles`, `${libName}.umd.min.js`),
+                name: `${libName}`,
+                format: 'umd'
+            },
+
             plugins: rollupBaseConfig.plugins.concat([uglify({})])
         });
 
         // ESM+ES5 flat module bundle.
         const fesm5config = Object.assign({}, rollupBaseConfig, {
             input: es5Entry,
-            output: path.join(distFolder, `${libName}.es5.js`),
-            format: 'es'
+            output: {
+                file: path.join(distFolder, `${libName}.es5.js`),
+                format: 'es'
+            }
         });
 
         // ESM+ES2015 flat module bundle.
         const fesm2015config = Object.assign({}, rollupBaseConfig, {
             input: es2015Entry,
-            output: path.join(distFolder, `${libName}.js`),
-            format: 'es'
+            output: {
+                file: path.join(distFolder, `${libName}.js`),
+                format: 'es'
+            },
+
         });
 
         const allBundles = [
@@ -114,7 +131,7 @@ return Promise.resolve()
             minifiedUmdConfig,
             fesm5config,
             fesm2015config
-        ].map(cfg => rollup.rollup(cfg).then(bundle => bundle.write(cfg)));
+        ].map(cfg => rollup.rollup(cfg).then(bundle => bundle.write(cfg.output)));
 
         return Promise.all(allBundles)
             .then(() => console.log('All bundles generated successfully.'))
