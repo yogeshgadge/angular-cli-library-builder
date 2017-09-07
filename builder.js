@@ -1,5 +1,5 @@
 // Source https://github.com/filipesilva/angular-quickstart-lib/blob/master/build.js
-
+// modified to suit our purpose
 'use strict';
 
 const fs = require('fs');
@@ -16,138 +16,151 @@ const del = require('del');
 
 const inlineResources = require('./inline-resources');
 
-const libDir = path.join(__dirname, 'example');
+const defaultLibFolder = path.join(__dirname);
+
+module.exports.build = function(options) {
+    options = options || {};
+    let rootFolder = options.rootFolder || defaultLibFolder;
 
 
-
-const rootFolder = path.join(libDir);
-const libName = require(path.join(rootFolder, 'package.json')).name;
-const compilationFolder = path.join(rootFolder, 'out-tsc');
-const srcFolder = path.join(rootFolder, 'src/lib');
-const distFolder = path.join(rootFolder, 'dist');
-const tempLibFolder = path.join(compilationFolder, 'lib');
-const es5OutputFolder = path.join(compilationFolder, 'lib-es5');
-const es2015OutputFolder = path.join(compilationFolder, 'lib-es2015');
-
-del.sync(distFolder);
-del.sync(compilationFolder);
-
-return Promise.resolve()
-// Copy library to temporary folder and inline html/css.
-    .then(() => _relativeCopy(`**/*`, srcFolder, tempLibFolder)
-        .then(() => inlineResources(tempLibFolder))
-        .then(() => console.log('Inlining succeeded.'))
-    )
-    // Compile to ES2015.
-    .then(() => ngc({ project: `${tempLibFolder}/tsconfig.lib.json` })
-        .then(exitCode => exitCode === 0 ? Promise.resolve() : Promise.reject())
-        .then(() => console.log('ES2015 compilation succeeded.'))
-    )
-    // Compile to ES5.
-    .then(() => ngc({ project: `${tempLibFolder}/tsconfig.es5.json` })
-        .then(exitCode => exitCode === 0 ? Promise.resolve() : Promise.reject())
-        .then(() => console.log('ES5 compilation succeeded.'))
-    )
-    // Copy typings and metadata to `dist/` folder.
-    .then(() => Promise.resolve()
-        .then(() => _relativeCopy('**/*.d.ts', es2015OutputFolder, distFolder))
-        .then(() => _relativeCopy('**/*.metadata.json', es2015OutputFolder, distFolder))
-        .then(() => console.log('Typings and metadata copy succeeded.'))
-    )
-    // Bundle lib.
-    .then(() => {
-        // Base configuration.
-        const es5Entry = path.join(es5OutputFolder, `${libName}.js`);
-        const es2015Entry = path.join(es2015OutputFolder, `${libName}.js`);
-        const rollupBaseConfig = {
-            name: camelCase(libName),
-            output: {sourcemap: true},
-            // ATTENTION:
-            // Add any dependency or peer dependency your library to `globals` and `external`.
-            // This is required for UMD bundle users.
-            globals: {
-                // The key here is library name, and the value is the the name of the global variable name
-                // the window object.
-                // See https://github.com/rollup/rollup/wiki/JavaScript-API#globals for more.
-                '@angular/core': 'ng.core'
-            },
-            external: [
-                // List of dependencies
-                // See https://github.com/rollup/rollup/wiki/JavaScript-API#external for more.
-                '@angular/core'
-            ],
-            plugins: [
-                commonjs({
-                    include: ['node_modules/rxjs/**']
-                }),
-                sourcemaps(),
-                nodeResolve({ jsnext: true, module: true })
-            ]
-        };
-
-        // UMD bundle.
-        const umdConfig = Object.assign({}, rollupBaseConfig, {
-            input: es5Entry,
-            output: {
-                file: path.join(distFolder, `bundles`, `${libName}.umd.js`),
-                name: `${libName}`,
-                format: 'umd'
-            },
-        });
-
-        // Minified UMD bundle.
-        const minifiedUmdConfig = Object.assign({}, rollupBaseConfig, {
-            input: es5Entry,
-            output: {
-                file: path.join(distFolder, `bundles`, `${libName}.umd.min.js`),
-                name: `${libName}`,
-                format: 'umd'
-            },
-
-            plugins: rollupBaseConfig.plugins.concat([uglify({})])
-        });
-
-        // ESM+ES5 flat module bundle.
-        const fesm5config = Object.assign({}, rollupBaseConfig, {
-            input: es5Entry,
-            output: {
-                file: path.join(distFolder, `${libName}.es5.js`),
-                format: 'es'
-            }
-        });
-
-        // ESM+ES2015 flat module bundle.
-        const fesm2015config = Object.assign({}, rollupBaseConfig, {
-            input: es2015Entry,
-            output: {
-                file: path.join(distFolder, `${libName}.js`),
-                format: 'es'
-            },
-
-        });
-
-        const allBundles = [
-            umdConfig,
-            minifiedUmdConfig,
-            fesm5config,
-            fesm2015config
-        ].map(cfg => rollup.rollup(cfg).then(bundle => bundle.write(cfg.output)));
-
-        return Promise.all(allBundles)
-            .then(() => console.log('All bundles generated successfully.'))
-    })
-    // Copy package files
-    .then(() => Promise.resolve()
-        .then(() => _relativeCopy('LICENSE', rootFolder, distFolder))
-        .then(() => _relativeCopy('package.json', rootFolder, distFolder))
-        .then(() => _relativeCopy('README.md', rootFolder, distFolder))
-        .then(() => console.log('Package files copy succeeded.'))
-    )
-    .catch(e => {
-        console.error('\Build failed. See below for errors.\n');
-        console.error(e);
-        process.exit(1);
+    options = Object.assign({}, options, {
+        rootFolder : rootFolder,
+        libName : require(path.join(rootFolder, 'package.json')).name,
+        compilationFolder : path.join(rootFolder, 'out-tsc'),
+        srcFolder: path.join(rootFolder, 'src' ,'lib'),
+        distFolder : path.join(rootFolder, 'dist'),
     });
+
+    options = Object.assign(options, {
+        tempLibFolder : path.join(options.compilationFolder, 'lib'),
+        es5OutputFolder : path.join(options.compilationFolder, 'lib-es5'),
+        es2015OutputFolder : path.join(options.compilationFolder, 'lib-es2015')
+    });
+
+    del.sync(options.distFolder);
+    del.sync(options.compilationFolder);
+
+    return Promise.resolve()
+    // Copy library to temporary folder and inline html/css.
+        .then(() => _relativeCopy(`**/*`, options.srcFolder, options.tempLibFolder)
+            .then(() => inlineResources(options.tempLibFolder))
+            .then(() => console.log('Inlining succeeded.'))
+        )
+        // Compile to ES2015.
+        .then(() => ngc({ project: `${options.tempLibFolder}/tsconfig.lib.json` })
+            .then(exitCode => exitCode === 0 ? Promise.resolve() : Promise.reject())
+            .then(() => console.log('ES2015 compilation succeeded.'))
+        )
+        // Compile to ES5.
+        .then(() => ngc({ project: `${options.tempLibFolder}/tsconfig.es5.json` })
+            .then(exitCode => exitCode === 0 ? Promise.resolve() : Promise.reject())
+            .then(() => console.log('ES5 compilation succeeded.'))
+        )
+        // Copy typings and metadata to `dist/` folder.
+        .then(() => Promise.resolve()
+            .then(() => _relativeCopy('**/*.d.ts', options.es2015OutputFolder, options.distFolder))
+            .then(() => _relativeCopy('**/*.metadata.json', options.es2015OutputFolder, options.distFolder))
+            .then(() => console.log('Typings and metadata copy succeeded.'))
+        )
+        // Bundle lib.
+        .then(() => {
+            // Base configuration.
+            const es5Entry = path.join(options.es5OutputFolder, `${options.libName}.js`);
+            const es2015Entry = path.join(options.es2015OutputFolder, `${options.libName}.js`);
+            const rollupBaseConfig = {
+                name: camelCase(options.libName),
+                output: {sourcemap: true},
+                // ATTENTION:
+                // Add any dependency or peer dependency your library to `globals` and `external`.
+                // This is required for UMD bundle users.
+                globals: {
+                    // The key here is library name, and the value is the the name of the global variable name
+                    // the window object.
+                    // See https://github.com/rollup/rollup/wiki/JavaScript-API#globals for more.
+                    '@angular/core': 'ng.core'
+                },
+                external: [
+                    // List of dependencies
+                    // See https://github.com/rollup/rollup/wiki/JavaScript-API#external for more.
+                    '@angular/core'
+                ],
+                plugins: [
+                    commonjs({
+                        include: ['node_modules/rxjs/**']
+                    }),
+                    sourcemaps(),
+                    nodeResolve({ jsnext: true, module: true })
+                ]
+            };
+
+            // UMD bundle.
+            const umdConfig = Object.assign({}, rollupBaseConfig, {
+                input: es5Entry,
+                output: {
+                    file: path.join(options.distFolder, `bundles`, `${options.libName}.umd.js`),
+                    name: `${options.libName}`,
+                    format: 'umd'
+                },
+            });
+
+            // Minified UMD bundle.
+            const minifiedUmdConfig = Object.assign({}, rollupBaseConfig, {
+                input: es5Entry,
+                output: {
+                    file: path.join(options.distFolder, `bundles`, `${options.libName}.umd.min.js`),
+                    name: `${options.libName}`,
+                    format: 'umd'
+                },
+
+                plugins: rollupBaseConfig.plugins.concat([uglify({})])
+            });
+
+            // ESM+ES5 flat module bundle.
+            const fesm5config = Object.assign({}, rollupBaseConfig, {
+                input: es5Entry,
+                output: {
+                    file: path.join(options.distFolder, `${options.libName}.es5.js`),
+                    format: 'es'
+                }
+            });
+
+            // ESM+ES2015 flat module bundle.
+            const fesm2015config = Object.assign({}, rollupBaseConfig, {
+                input: es2015Entry,
+                output: {
+                    file: path.join(options.distFolder, `${options.libName}.js`),
+                    format: 'es'
+                },
+
+            });
+
+            const allBundles = [
+                umdConfig,
+                minifiedUmdConfig,
+                fesm5config,
+                fesm2015config
+            ].map(cfg => rollup.rollup(cfg).then(bundle => bundle.write(cfg.output)));
+
+            return Promise.all(allBundles)
+                .then(() => console.log('All bundles generated successfully.'))
+        })
+        // Copy package files
+        .then(() => Promise.resolve()
+            .then(() => _relativeCopy('LICENSE', options.rootFolder, options.distFolder))
+            .then(() => _relativeCopy('package.json', options.rootFolder, options.distFolder))
+            .then(() => _relativeCopy('README.md', options.rootFolder, options.distFolder))
+            .then(() => console.log('Package files copy succeeded.'))
+        )
+        .catch(e => {
+            console.error('\Build failed. See below for errors.\n');
+            console.error(e);
+            process.exit(1);
+        });
+};
+
+
+
+
 
 
 // Copy files maintaining relative paths.
