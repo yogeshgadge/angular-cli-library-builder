@@ -1,4 +1,5 @@
-const builder = require('./builder');
+const builder = require('./lib/build');
 const path = require('path');
 
-builder.build({ rootFolder : path.join(__dirname, 'example')});
+
+builder.build({rootFolder: path.resolve('example'), srcFolder : path.resolve('example', 'src', 'lib')});

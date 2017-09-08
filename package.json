@@ -1,38 +1,51 @@
 {
-  "name": "angular-library-builder-gulp",
+  "name": "ngx-lib-build",
   "version": "1.0.0",
   "description": "To produce FESM, ES5, UMD, SCSS compiled packages that allows production of packages which can be further consumed by TypeScript, ES6, SCSS (or CSS) based applications especially angular-cli library applications",
-  "main": "index.js",
+  "bin": {
+    "ngx-lib-build": "./bin/ngx-lib-build.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "mkdir dist && cp -rf package.json bin lib LICENSE README.md ./dist"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yogeshgadge/angular-library-builder-gulp.git"
+    "url": "git+https://github.com/yogeshgadge/ngx-library-builder.git"
   },
   "author": "Yogesh Gadge",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yogeshgadge/angular-library-builder-gulp/issues"
+    "url": "https://github.com/yogeshgadge/ngx-library-builder/issues"
   },
-  "homepage": "https://github.com/yogeshgadge/angular-library-builder-gulp#readme",
-  "dependencies": {
+  "homepage": "https://github.com/yogeshgadge/ngx-library-builder#readme",
+  "peerDependencies": {
     "@angular/compiler": "^4.4.0-RC.0",
     "@angular/compiler-cli": "^4.4.0-RC.0",
     "@angular/core": "^4.4.0-RC.0",
+    "rxjs": "^5.4.3",
+    "typescript": "^2.5.2",
+    "zone.js": "^0.8.17"
+  },
+  "dependencies": {
     "camelcase": "^4.1.0",
     "del": "^3.0.0",
-    "gulp": "^3.9.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-rollup": "^2.14.0",
-    "gulp-sass": "^3.1.0",
+    "glob": "^7.1.2",
+    "minimist": "^1.2.0",
     "node-sass": "^4.5.3",
     "node-sass-tilde-importer": "^1.0.0",
     "rollup": "^0.49.2",
     "rollup-plugin-commonjs": "^8.2.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-uglify": "^2.0.1",
+    "rollup-plugin-uglify": "^2.0.1"
+  },
+  "devDependencies": {
+    "@angular/common": "^4.4.0-RC.0",
+    "font-awesome": "^4.7.0",
+    "@angular/compiler": "^4.4.0-RC.0",
+    "@angular/compiler-cli": "^4.4.0-RC.0",
+    "@angular/core": "^4.4.0-RC.0",
     "rxjs": "^5.4.3",
     "typescript": "^2.5.2",
     "zone.js": "^0.8.17"
