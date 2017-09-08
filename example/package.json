@@ -6,6 +6,9 @@
   "es2015": "./example-lib.js",
   "typings": "./example-lib.d.ts",
   "dependencies": {
-    
+    "@angular/common": "^4.4.0-RC.0",
+    "font-awesome": "^4.7.0",
+    "@angular/core": "^4.4.0-RC.0",
+    "rxjs": "^5.4.3"
   }
 }
