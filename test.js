@@ -1,4 +1,4 @@
-const builder = require('./lib/build');
+const builder = require('./lib/builder');
 const path = require('path');
 
 

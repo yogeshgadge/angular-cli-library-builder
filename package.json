@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "To produce FESM, ES5, UMD, SCSS compiled packages that allows production of packages which can be further consumed by TypeScript, ES6, SCSS (or CSS) based applications especially angular-cli library applications",
   "bin": {
-    "ngx-lib-build": "./bin/ngx-lib-build.js"
+    "ngx-library-builder": "./bin/ngx-library-builder"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test.js",
     "dist": "mkdir dist && cp -rf package.json bin lib LICENSE README.md ./dist"
   },
   "repository": {
@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@angular/common": "^4.4.0-RC.0",
-    "font-awesome": "^4.7.0",
     "@angular/compiler": "^4.4.0-RC.0",
     "@angular/compiler-cli": "^4.4.0-RC.0",
     "@angular/core": "^4.4.0-RC.0",

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const builder = require('../lib/build');
+const builder = require('../lib/builder');
 const path = require('path');
 const argv = require('minimist')(process.argv.slice(2));
 console.dir(argv);
