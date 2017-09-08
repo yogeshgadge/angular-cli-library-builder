@@ -1,6 +1,6 @@
 {
   "name": "ngx-lib-build",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "To produce FESM, ES5, UMD, SCSS compiled packages that allows production of packages which can be further consumed by TypeScript, ES6, SCSS (or CSS) based applications especially angular-cli library applications",
   "bin": {
     "ngx-library-builder": "./bin/ngx-library-builder"
