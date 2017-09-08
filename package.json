@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "node test.js",
-    "dist": "mkdir dist && cp -rf package.json bin lib LICENSE README.md ./dist"
+    "dist": "rm -rf dist && mkdir dist && cp -rf package.json bin lib LICENSE README.md ./dist"
   },
   "repository": {
     "type": "git",
