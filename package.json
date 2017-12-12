@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/yogeshgadge/ngx-library-builder#readme",
   "peerDependencies": {
-    "@angular/compiler": "^5",
-    "@angular/compiler-cli": "^5",
-    "@angular/core": "^5",
-    "rxjs": "^5",
-    "typescript": "^2",
+    "@angular/compiler": "5.0.3",
+    "@angular/compiler-cli": "5.0.3",
+    "@angular/core": "5.0.3",
+    "rxjs": "5.0.3",
+    "typescript": "^2.4.2",
     "zone.js": "^0"
   },
   "dependencies": {
@@ -44,13 +44,13 @@
     "rollup-plugin-uglify": "^2.0.1"
   },
   "devDependencies": {
-    "@angular/common": "^5",
-    "@angular/compiler": "^5",
-    "@angular/compiler-cli": "^5",
-    "@angular/core": "^5",
+    "@angular/common": "5.0.3",
+    "@angular/compiler": "^5.0.5",
+    "@angular/compiler-cli": "^5.0.5",
+    "@angular/core": "5.0.3",
     "font-awesome": "^4.7.0",
-    "rxjs": "^5",
-    "typescript": "^2",
+    "rxjs": "5.0.3",
+    "typescript": "^2.4.2",
     "zone.js": "^0"
   }
 }

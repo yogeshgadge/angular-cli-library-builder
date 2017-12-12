@@ -14,3 +14,14 @@ export class ModelParent {
 export interface ModelInterface {
     render(component: ModelParent) : ModelChild;
 }
+
+export abstract class MyAbstractClass {
+    value: ModelParent = new ModelParent();
+
+    abstract setValue(parent: ModelParent): void;
+
+    getValue(): ModelParent {
+        return this.value;
+    }
+
+}
