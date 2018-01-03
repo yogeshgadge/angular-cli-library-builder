@@ -14,6 +14,7 @@ export class ModelParent {
 export interface ModelInterface {
     render(component: ModelParent) : ModelChild;
 }
+
 export abstract class MyAbstractClass {
     value: ModelParent = new ModelParent();
 
